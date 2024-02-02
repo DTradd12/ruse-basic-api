@@ -23,6 +23,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
+    needs: build
 
     steps:
       - name: Checkout code
@@ -32,7 +33,9 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y openssh-client
 
       - name: Verify deploy.sh file existence
-        run: ls -la deploy.sh
+        run: |
+          pwd
+          ls -la deploy.sh
 
       - name: Make deploy.sh executable
         run: chmod +x deploy.sh
