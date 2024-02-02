@@ -1,0 +1,44 @@
+name: Deploy to AWS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Rust
+        uses: actions/setup-rust@v1
+        with:
+          rust-version: stable
+
+      - name: Build Rust project
+        run: cargo build --release
+
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install SSH client
+        run: sudo apt-get update && sudo apt-get install -y openssh-client
+
+      - name: Deploy to AWS
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          EC2_PUBLIC_IP: ${{ secrets.EC2_PUBLIC_IP }}
+          DEPLOYMENT_PATH: ${{ github.workspace }}
+        run: |
+          # Make the shell script executable
+          chmod +x deploy.sh
+
+          # Execute the shell script
+          ./deploy.sh
