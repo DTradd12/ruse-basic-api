@@ -31,14 +31,11 @@ jobs:
       - name: Install SSH client
         run: sudo apt-get update && sudo apt-get install -y openssh-client
 
-      - name: Deploy to AWS
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          EC2_PUBLIC_IP: ${{ secrets.EC2_PUBLIC_IP }}
-          DEPLOYMENT_PATH: ${{ github.workspace }}
-        run: |
-          # Make the shell script executable
-          chmod +x deploy.sh
+      - name: Verify deploy.sh file existence
+        run: ls -la deploy.sh
 
-          # Execute the shell script
-          ./deploy.sh
+      - name: Make deploy.sh executable
+        run: chmod +x deploy.sh
+
+      - name: Execute deploy.sh
+        run: ./deploy.sh
