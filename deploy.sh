@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# Additional deployment steps go here
-
 # Ensure we are in the correct directory
 cd $DEPLOYMENT_PATH || exit
 
