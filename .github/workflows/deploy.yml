@@ -29,16 +29,15 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Build Docker image
-        run: docker build -t basic-rust-api .
+        run: docker build -t basic_rust_api_image .
 
-      - name: SSH into EC2 and deploy
+      - name: SSH into EC2 Instance and Deploy
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.AWS_EC2_HOST }}
           username: ${{ secrets.AWS_EC2_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.AWS_EC2_PORT }}
           script: |
-            docker stop basic-rust-api || true
-            docker rm basic-rust-api || true
-            docker run -d -p 8080:8080 --name basic-rust-api basic-rust-api
+            docker stop basic_rust_api_container || true
+            docker rm basic_rust_api_container || true
+            docker run -d --name basic_rust_api_container -p 8000:8000 basic_rust_api_image
