@@ -31,14 +31,14 @@ jobs:
 #      - name: Build Docker image
 #        run: docker build -t basic_rust_api_image .
 
-      - name: Adding Known Hosts
-        run: ssh-keyscan -H ${{ secrets.AWS_EC2_HOST }} >> ~/.ssh/known_hosts
-
       - name: Install SSH Key
         uses: shimataro/ssh-key-action@v2
         with:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           known_hosts: unnecessary
+
+      - name: Adding Known Hosts
+        run: ssh-keyscan -H ${{ secrets.AWS_EC2_HOST }} >> ~/.ssh/known_hosts
 
       - name: SSH into EC2 Instance and Deploy
         env:
