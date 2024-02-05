@@ -31,14 +31,12 @@ jobs:
       - name: Build Docker image
         run: docker build -t basic_rust_api_image .
 
-      - name: Install SSH Client
-        run: sudo apt-get install -y openssh-client
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: SSH into EC2 Instance and Deploy
         run: |
-          echo "SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}"
-          echo "AWS_EC2_USERNAME: ${{ secrets.AWS_EC2_USERNAME }}"
-          echo "AWS_EC2_HOST: ${{ secrets.AWS_EC2_HOST }}"
-          ssh -o StrictHostKeyChecking=no -i "${{ secrets.SSH_PRIVATE_KEY }}" \
-          "${{ secrets.AWS_EC2_USERNAME }}@${{ secrets.AWS_EC2_HOST }}" \
+          ssh "${{ secrets.AWS_EC2_USERNAME }}@${{ secrets.AWS_EC2_HOST }}" \
           'bash -s' < deploy.sh
