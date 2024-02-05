@@ -1,30 +1,46 @@
-# Use a Rust base image
-FROM rust:latest as builder
+####################################################################################################
+## Builder
+####################################################################################################
+FROM rust:latest AS builder
 
-# Set the working directory
-WORKDIR /usr/src/my_app
+RUN rustup target add x86_64-unknown-linux-musl
+RUN apt update && apt install -y musl-tools musl-dev
+RUN update-ca-certificates
 
-# Copy the Cargo.toml and Cargo.lock files to optimize dependency caching
-COPY Cargo.toml Cargo.lock ./
+# Create appuser
+ENV USER=app
+ENV UID=10001
 
-# Build the dependencies
-RUN mkdir src && echo "fn main() {}" > src/main.rs && \
-    cargo build --release
+RUN adduser \
+    --disabled-password \
+    --gecos "" \
+    --home "/nonexistent" \
+    --shell "/sbin/nologin" \
+    --no-create-home \
+    --uid "${UID}" \
+    "${USER}"
 
-# Copy the application source code
-COPY . .
+WORKDIR /app
 
-# Build the application
-RUN cargo build --release
+COPY ./ .
 
-# Create a minimal runtime image
-FROM debian:buster-slim
+RUN cargo build --target x86_64-unknown-linux-musl --release
 
-# Set the working directory
-WORKDIR /usr/local/bin
+####################################################################################################
+## Final image
+####################################################################################################
+FROM scratch
 
-# Copy the built binary from the builder stage to the runtime image
-COPY --from=builder /usr/src/my_app/target/release/basic-rust-api .
+# Import from builder.
+COPY --from=builder /etc/passwd /etc/passwd
+COPY --from=builder /etc/group /etc/group
 
-# Set the binary as the entry point
-ENTRYPOINT ["./basic-rust-api"]
+WORKDIR /app
+
+# Copy our build
+COPY --from=builder /app/target/x86_64-unknown-linux-musl/release/basic-api ./
+
+# Use an unprivileged user.
+USER app:app
+
+CMD ["/app/basic-api"]
