@@ -44,7 +44,7 @@ jobs:
         env:
           PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           HOSTNAME: ${{secrets.AWS_EC2_HOST}}
-          USER_NAME: ${{secrets.USER_NAME}}
+          USER_NAME: ${{secrets.AWS_EC2_USERNAME }}
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
           ssh -v -o StrictHostKeyChecking=no \
