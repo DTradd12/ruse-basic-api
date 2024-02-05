@@ -35,17 +35,41 @@ jobs:
         uses: shimataro/ssh-key-action@v2
         with:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          known_hosts: unnecessary
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
 
       - name: Install SSH Client
         run: sudo apt-get install -y openssh-client
 
       - name: Configure SSH
         run: |
-          sudo mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          # Print the current user
+          echo "Current user: $(whoami)"
+          
+          # Check if the ~/.ssh directory exists
+          if [ ! -d ~/.ssh ]; then
+          echo "Creating ~/.ssh directory..."
+          mkdir -p ~/.ssh
+          fi
+            
+          # Check if the directory was created successfully
+          if [ -d ~/.ssh ]; then
+          echo "Successfully created ~/.ssh directory or it already exists."
+          else
+          echo "Failed to create ~/.ssh directory."
+          exit 1
+          fi
+          
+          # Print permissions of the ~/.ssh directory
+          echo "Permissions of ~/.ssh directory:"
+          ls -ld ~/.ssh
+          
+          # Continue with other commands...
+          echo "Adding private key to ~/.ssh/id_rsa"
+          echo "YOUR_PRIVATE_KEY_CONTENT" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.AWS_EC2_HOST }} >> ~/.ssh/known_hosts
+          
+          echo "Adding host key to ~/.ssh/known_hosts"
+          ssh-keyscan -H YOUR_HOSTNAME_OR_IP >> ~/.ssh/known_hosts
 
       - name: SSH into EC2 Instance and Deploy
         run: |
