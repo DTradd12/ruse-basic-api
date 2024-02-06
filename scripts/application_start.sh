@@ -1,6 +1,9 @@
 #!/bin/bash
 
-echo 'run application_start.sh: ' >> /home/ec2-user/rust-basic-api/deploy.log
-# nodejs-app is the same name as stored in pm2 process
-echo 'cargo run' >> /home/ec2-user/rust-basic-api/deploy.log
-cargo run >> /home/ec2-user/rust-basic-api/deploy.log
+# give permission to the files inside /secure_docs directory
+
+sudo chmod -R 777 /home/ubuntu/basic-api
+
+sudo docker build . -t basic-api --no-cache
+
+sudo docker run -d basic-api -p8000:8000 --name basic-api-i

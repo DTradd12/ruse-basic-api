@@ -1,30 +1,28 @@
-# Use a Rust base image
-FROM rust:latest as builder
+FROM ubuntu:latest
+ARG DEBIAN_FRONTEND=noninteractive
 
-# Set the working directory
-WORKDIR /usr/src/my_app
+RUN apt update
+RUN apt install -y build-essential \
+curl \
+pkg-config \
+libssl-dev
 
-# Copy the Cargo.toml and Cargo.lock files to optimize dependency caching
-COPY Cargo.toml Cargo.lock ./
-
-# Build the dependencies
-RUN mkdir src && echo "fn main() {}" > src/main.rs && \
-    cargo build --release
-
-# Copy the application source code
+RUN apt update
+RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
+RUN rustup default nightly
+RUN USER=root cargo new --bin basic-api
+WORKDIR "/basic-api"
 COPY . .
-
-# Build the application
 RUN cargo build --release
+RUN rm src/*.rs
 
-# Create a minimal runtime image
-FROM debian:buster-slim
+FROM ubuntu:latest
+ARG DEBIAN_FRONTEND=noninteractive
 
-# Set the working directory
+RUN apt update
+ENV ROCKET_ADDRESS=0.0.0.0
+EXPOSE 8000
+COPY --from=0 /basic-api/target/release/basic-api /usr/local/bin/basic-api
 WORKDIR /usr/local/bin
-
-# Copy the built binary from the builder stage to the runtime image
-COPY --from=builder /usr/src/my_app/target/release/basic-rust-api .
-
-# Set the binary as the entry point
-ENTRYPOINT ["./basic-rust-api"]
+CMD ["basic-api"]
