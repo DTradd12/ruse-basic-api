@@ -33,7 +33,7 @@ WORKDIR /app
 COPY --from=build /basic-api/target/release/basic-api /app/basic-api
 
 # Copy the cert.pem file from the host to the Docker image
-COPY /etc/ssl/cert.pem /app/cert.pem
+COPY cert.pem /app/cert.pem
 
 # Switch to non-root user
 USER appuser
