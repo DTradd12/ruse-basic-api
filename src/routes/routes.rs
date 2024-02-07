@@ -15,9 +15,10 @@ pub fn health() -> Json<Health> {
 #[get("/NASA")]
 pub async fn nasa_potd() -> Json<NasaResponse> {
     let response = repositories::nasa_repository::nasa_repository().await;
+    let url = response.unwrap().url;
 
     Json(NasaResponse {
-        image_url: response.unwrap().url,
+        image_url: url,
     })
 }
 
