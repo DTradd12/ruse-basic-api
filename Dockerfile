@@ -32,11 +32,6 @@ WORKDIR /app
 # **Copy the built application from the build stage**
 COPY --from=build /basic-api/target/release/basic-api /app/basic-api
 
-# **Copy the cert.pem file with adjusted permissions**
-RUN cp /cert.pem /app/certs/cert.pem
-RUN chown appuser:appuser /app/certs/cert.pem
-RUN chmod 400 /app/certs/cert.pem
-
 # Switch to non-root user
 USER appuser
 
@@ -45,6 +40,12 @@ ENV ROCKET_ADDRESS=0.0.0.0
 
 # Expose the port that the application listens on
 EXPOSE 8000
+
+# Stage 3: final with volume mount
+FROM final
+
+# Mount the host directory containing cert.pem at /app/certs
+VOLUME ["/path/to/host/directory:/app/certs"]
 
 # Set the command to run the application with environment variable
 ENV CERT_PATH=/app/certs/cert.pem
