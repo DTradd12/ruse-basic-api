@@ -29,11 +29,13 @@ RUN adduser \
 # Set the working directory
 WORKDIR /app
 
-# Copy the built application from the build stage
+# **Copy the built application from the build stage**
 COPY --from=build /basic-api/target/release/basic-api /app/basic-api
 
-# **Mounting the `/etc/ssl` directory as a volume (caution required)**
-VOLUME ["/etc/ssl:/app/certs"]
+# **Copy the cert.pem file with adjusted permissions**
+RUN cp /etc/ssl/certs.pem /app/certs/cert.pem
+RUN chown appuser:appuser /app/certs/cert.pem
+RUN chmod 400 /app/certs/cert.pem
 
 # Switch to non-root user
 USER appuser
