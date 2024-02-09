@@ -1,7 +1,8 @@
 use rocket::serde::json::Json;
 use rocket_okapi::openapi;
-use crate::repositories;
+
 use crate::models::responses::{DadJokeResponse, Health, NasaResponse};
+use crate::repositories;
 
 #[openapi(tag = "Health Check")]
 #[get("/health")]

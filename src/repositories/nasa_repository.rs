@@ -1,5 +1,6 @@
 use std::env;
-use reqwest::{Error};
+
+use reqwest::Error;
 
 #[derive(Debug, serde::Deserialize)]
 pub(crate) struct NasaAPIResponse {

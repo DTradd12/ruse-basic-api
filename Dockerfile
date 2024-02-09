@@ -30,10 +30,12 @@ RUN adduser \
 WORKDIR /app
 
 # Copy the built application from the build stage
-COPY --from=build /basic-api/target/release/basic-api /app/basic-api
+COPY --from=build /basic-api/target/release/basic_api /app/basic_api
 
-# Copy the cert.pem file from the host to the Docker image
-COPY cert.pem /app/cert.pem
+# **Copy the cert.pem file with adjusted permissions**
+RUN sudo cp /etc/ssl/certs.pem /app/certs/cert.pem
+RUN chown appuser:appuser /app/certs/cert.pem
+RUN chmod 400 /app/certs/cert.pem
 
 # Switch to non-root user
 USER appuser
@@ -44,5 +46,7 @@ ENV ROCKET_ADDRESS=0.0.0.0
 # Expose the port that the application listens on
 EXPOSE 8000
 
-# Set the command to run the application
-CMD ["/app/basic-api"]
+# Set the command to run the application with environment variable
+ENV CERT_PATH=/app/certs/cert.pem
+
+CMD ["/app/basic_api", "--cert-path", "$CERT_PATH"]
