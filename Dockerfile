@@ -30,7 +30,7 @@ RUN adduser \
 WORKDIR /app
 
 # Copy the built application from the build stage
-COPY --from=build /basic-api/target/release/basic_api /app/basic_api
+COPY --from=build /basic-api/target/release/basic-api /app/basic-api
 
 # **Copy the cert.pem file with adjusted permissions**
 RUN sudo cp /etc/ssl/certs.pem /app/certs/cert.pem
@@ -49,4 +49,4 @@ EXPOSE 8000
 # Set the command to run the application with environment variable
 ENV CERT_PATH=/app/certs/cert.pem
 
-CMD ["/app/basic_api", "--cert-path", "$CERT_PATH"]
+CMD ["/app/basic-api", "--cert-path", "$CERT_PATH"]
