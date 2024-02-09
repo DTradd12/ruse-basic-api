@@ -45,7 +45,7 @@ EXPOSE 8000
 FROM final
 
 # Mount the host directory containing cert.pem at /app/certs
-VOLUME ["/path/to/host/directory:/app/certs"]
+VOLUME [".:/app/certs"]
 
 # Set the command to run the application with environment variable
 ENV CERT_PATH=/app/certs/cert.pem
