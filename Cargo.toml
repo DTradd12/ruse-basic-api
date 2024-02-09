@@ -16,3 +16,7 @@ futures = "0.3"
 chrono = "0.4"
 reqwest = { version = "0.11", features = ["json"] }
 openssl = "*"
+
+[global]
+address = "0.0.0.0"
+port = 8000
