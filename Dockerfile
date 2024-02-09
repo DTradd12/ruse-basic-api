@@ -33,7 +33,7 @@ WORKDIR /app
 COPY --from=build /basic-api/target/release/basic-api /app/basic-api
 
 # **Copy the cert.pem file with adjusted permissions**
-RUN cp /etc/ssl/cert.pem /app/certs/cert.pem
+RUN cp /cert.pem /app/certs/cert.pem
 RUN chown appuser:appuser /app/certs/cert.pem
 RUN chmod 400 /app/certs/cert.pem
 
