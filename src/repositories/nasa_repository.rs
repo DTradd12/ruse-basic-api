@@ -1,4 +1,5 @@
 use std::env;
+use dotenv::dotenv;
 
 use reqwest::Error;
 
@@ -7,10 +8,8 @@ pub(crate) struct NasaAPIResponse {
     pub(crate) url: String,
 }
 pub(crate) async fn nasa_repository() -> Result<NasaAPIResponse, Error> {
-    let api_key = match env::var("nasa-api-key") {
-        Ok(key) => key,
-        Err(_) => panic!("NASA API key not found in environment"),
-    };
+    dotenv().ok();
+    let api_key = env::var("NASA_API_KEY").expect("NASA_API_KEY not set");
 
     let url = format!("https://api.nasa.gov/planetary/apod?api_key={}", api_key);
 
