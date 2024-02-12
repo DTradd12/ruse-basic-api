@@ -1,0 +1,38 @@
+name: Deploy to AWS EC2
+
+on:
+  push:
+    branches: [ main ] # Adapt this to your branch trigger strategy
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Login to AWS (Replace with AWS Secrets Manager approach)
+        run: |
+          # Use aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }} && aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} && aws configure set region ${{ secrets.AWS_DEFAULT_REGION }}
+
+          # Alternatively, use AWS Secrets Manager:
+          # echo "AWS_ACCESS_KEY_ID=$(aws secretsmanager get-secret-value --secret-id my-secret-id --query SecretString --output text)" >> $HOME/.aws/credentials
+          # echo "AWS_SECRET_ACCESS_KEY=$(aws secretsmanager get-secret-value --secret-id my-secret-id --query SecretString --output text)" >> $HOME/.aws/credentials
+          # aws configure set region ${{ secrets.AWS_DEFAULT_REGION }}
+
+      - name: Install Docker CLI (if needed)
+        run: |
+          sudo yum install docker -y || sudo apt-get install docker-ce -y
+
+      - name: Connect to EC2 instance (via SSH key)
+        run: |
+          ssh-agent bash -c "ssh-add cert.pem && ssh ec2-user@${{ secrets.EC2_INSTANCE_ID }}"
+
+      - name: Build Docker image
+        run: |
+          docker build -t basic-rust-api .
+
+      - name: Run Docker container
+        run: |
+          docker run -d -p 8000:8000 basic-rust-api
+
