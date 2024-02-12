@@ -13,20 +13,26 @@ jobs:
 
       - name: Login to AWS (Replace with AWS Secrets Manager approach)
         run: |
-          # Use aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }} && aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} && aws configure set region ${{ secrets.AWS_DEFAULT_REGION }}
-
-          # Alternatively, use AWS Secrets Manager:
-          # echo "AWS_ACCESS_KEY_ID=$(aws secretsmanager get-secret-value --secret-id my-secret-id --query SecretString --output text)" >> $HOME/.aws/credentials
-          # echo "AWS_SECRET_ACCESS_KEY=$(aws secretsmanager get-secret-value --secret-id my-secret-id --query SecretString --output text)" >> $HOME/.aws/credentials
-          # aws configure set region ${{ secrets.AWS_DEFAULT_REGION }}
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set region ${{ secrets.AWS_DEFAULT_REGION }}
 
       - name: Install Docker CLI (if needed)
         run: |
           sudo yum install docker -y || sudo apt-get install docker-ce -y
 
-      - name: Connect to EC2 instance (via SSH key)
+      - name: Get SSH key from Secrets Manager
+        uses: aws-actions/aws-secretsmanager@v7
+        with:
+          secret-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          region: ${{ secrets.AWS_DEFAULT_REGION }}
+        outputs:
+          ssh-key: ${{ steps.get-secret.outputs.SecretString }}
+
+      - name: Connect to EC2 instance (using retrieved SSH key)
         run: |
-          ssh-agent bash -c "ssh-add cert.pem && ssh ec2-user@${{ secrets.EC2_INSTANCE_ID }}"
+          # Decode and add the retrieved SSH key to the agent
+          echo ${{ steps.get-secret.outputs.ssh-key }} | base64 -d > key.pem && chmod 0400 key.pem && ssh-agent bash -c "ssh-add key.pem && ssh ec2-user@${{ secrets.EC2_INSTANCE_ID }}"
 
       - name: Build Docker image
         run: |
