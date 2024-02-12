@@ -26,13 +26,11 @@ jobs:
         with:
           secret-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           region: ${{ secrets.AWS_DEFAULT_REGION }}
-        outputs:
-          ssh-key: ${{ steps.get-secret.outputs.SecretString }}
 
       - name: Connect to EC2 instance (using retrieved SSH key)
         run: |
           # Decode and add the retrieved SSH key to the agent
-          echo ${{ steps.get-secret.outputs.ssh-key }} | base64 -d > key.pem && chmod 0400 key.pem && ssh-agent bash -c "ssh-add key.pem && ssh ec2-user@${{ secrets.EC2_INSTANCE_ID }}"
+          echo ${{ steps.get-secret.outputs.SecretString }} | base64 -d > key.pem && chmod 0400 key.pem && ssh-agent bash -c "ssh-add key.pem && ssh ec2-user@${{ secrets.EC2_INSTANCE_ID }}"
 
       - name: Build Docker image
         run: |
